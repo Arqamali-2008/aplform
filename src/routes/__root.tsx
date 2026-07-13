@@ -7,7 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ArrowUp } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
@@ -129,20 +130,66 @@ function RootComponent() {
         </div>
         <SiteFooter />
       </div>
+      <ScrollToTopButton />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
 }
 
-function SiteFooter() {
+function ScrollToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 320);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <footer className="border-t border-border bg-primary text-primary-foreground">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-1 px-4 py-4 text-center text-xs sm:text-sm">
-        <p className="font-medium">
-          Designed and Development By{" "}
-          <span className="font-display font-bold tracking-wide text-accent">AMi</span>
+    <button
+      type="button"
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      aria-label="Scroll to top"
+      className={`fixed bottom-5 right-5 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-glow transition-all duration-300 animate-pulse-glow hover:scale-110 hover:rotate-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:bottom-8 sm:right-8 sm:h-12 sm:w-12 ${
+        visible
+          ? "pointer-events-auto opacity-100 translate-y-0"
+          : "pointer-events-none opacity-0 translate-y-4"
+      }`}
+    >
+      <ArrowUp className="h-5 w-5" />
+    </button>
+  );
+}
+
+function SiteFooter() {
+  const year = new Date().getFullYear();
+  return (
+    <footer className="relative overflow-hidden border-t border-white/10 bg-gradient-navy text-primary-foreground">
+      {/* subtle animated accent line */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent to-transparent opacity-70"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-16 left-1/2 h-40 w-[80%] -translate-x-1/2 rounded-full bg-accent/20 blur-3xl"
+      />
+
+      <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-2 px-4 py-6 text-center sm:gap-3 sm:px-6 sm:py-8">
+        <p className="text-[13px] font-medium leading-relaxed sm:text-sm">
+          Designed &amp; Developed by{" "}
+          <span className="font-display text-lg font-bold uppercase tracking-widest text-shimmer sm:text-xl">
+            AMi
+          </span>
         </p>
-        <p className="text-primary-foreground/70">Batch of 2024</p>
+        <p className="text-[11px] uppercase tracking-[0.2em] text-primary-foreground/60 sm:text-xs">
+          Batch of 2024
+        </p>
+        <div className="mt-1 h-px w-16 bg-primary-foreground/15" />
+        <p className="text-[11px] text-primary-foreground/60 sm:text-xs">
+          © {year} APL / ALPL. All rights reserved.
+        </p>
       </div>
     </footer>
   );

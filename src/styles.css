@@ -157,3 +157,30 @@
 @utility shadow-glow { box-shadow: var(--shadow-glow); }
 @utility text-cricket-red { color: var(--cricket-red); }
 @utility text-cricket-navy { color: var(--cricket-navy); }
+
+@keyframes footer-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@utility text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    oklch(0.75 0.18 45) 40%,
+    oklch(0.98 0.02 60) 50%,
+    oklch(0.75 0.18 45) 60%,
+    var(--accent) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: footer-shimmer 3.5s linear infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.55 0.22 25 / 0.5), 0 8px 24px -6px oklch(0.22 0.09 260 / 0.5); }
+  50% { box-shadow: 0 0 0 10px oklch(0.55 0.22 25 / 0), 0 12px 32px -6px oklch(0.55 0.22 25 / 0.6); }
+}
+@utility animate-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
+
