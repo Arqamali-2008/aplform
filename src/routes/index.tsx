@@ -32,7 +32,11 @@ function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-hero-live text-primary-foreground">
         {/* dark vignette */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,oklch(0.08_0.04_260/0.6)_100%)]" aria-hidden />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "radial-gradient(ellipse at center, transparent 0%, oklch(0.08 0.04 260 / 0.6) 100%)" }}
+          aria-hidden
+        />
         {/* moving spotlight */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
           <div className="absolute -top-1/2 h-[200%] w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-spotlight" />
