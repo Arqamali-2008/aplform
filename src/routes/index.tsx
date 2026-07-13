@@ -30,25 +30,52 @@ function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-hero text-primary-foreground">
-        <div className="absolute inset-0 opacity-10" aria-hidden>
-          <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-accent blur-3xl" />
-          <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-white blur-3xl" />
+      <section className="relative overflow-hidden bg-gradient-hero-live text-primary-foreground">
+        {/* dark vignette */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,oklch(0.08_0.04_260/0.6)_100%)]" aria-hidden />
+        {/* moving spotlight */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          <div className="absolute -top-1/2 h-[200%] w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-spotlight" />
         </div>
+        {/* soft blobs */}
+        <div className="absolute inset-0 opacity-30" aria-hidden>
+          <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-accent blur-3xl animate-float-y" />
+          <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-primary blur-3xl animate-float-y [animation-delay:-3s]" />
+        </div>
+        {/* embers */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden>
+          {[
+            { l: "10%", d: "0s",   s: "6px" },
+            { l: "25%", d: "1.2s", s: "4px" },
+            { l: "45%", d: "2.4s", s: "8px" },
+            { l: "65%", d: "0.6s", s: "5px" },
+            { l: "82%", d: "3s",   s: "6px" },
+            { l: "92%", d: "1.8s", s: "4px" },
+          ].map((e, i) => (
+            <span
+              key={i}
+              className="absolute bottom-0 rounded-full bg-accent shadow-glow animate-ember"
+              style={{ left: e.l, animationDelay: e.d, width: e.s, height: e.s }}
+            />
+          ))}
+        </div>
+
         <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:items-center">
-          <div>
+          <div className="animate-thrill-in">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
-              <Trophy className="h-3.5 w-3.5 text-accent" /> Season Registrations Open
+              <Trophy className="h-3.5 w-3.5 text-accent animate-pulse" /> Season Registrations Open
             </div>
             <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl md:text-6xl">
-              Register your team for <span className="text-accent">APL</span> & <span className="text-accent">ALPL</span>
+              Register your team for{" "}
+              <span className="text-shimmer">APL</span> &{" "}
+              <span className="text-shimmer">ALPL</span>
             </h1>
             <p className="mt-4 max-w-lg text-base text-primary-foreground/85 sm:text-lg">
               Fast, mobile-friendly team sign-up. Upload logos and player photos, list your squad,
               and submit in one flow. Admins export ready-to-import JSON for APL HotSpot.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+              <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-glow transition-transform hover:scale-105">
                 <Link to="/register">
                   Start Registration <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -58,10 +85,16 @@ function LandingPage() {
               </Button>
             </div>
           </div>
-          <div className="flex justify-center md:justify-end">
+          <div className="flex justify-center md:justify-end animate-thrill-in [animation-delay:200ms]">
             <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-accent/40 blur-2xl" aria-hidden />
-              <img src={aplLogo.url} alt="Al-Manar Premier League crest" className="relative h-56 w-56 rounded-full bg-white p-2 shadow-glow sm:h-72 sm:w-72" />
+              <span className="absolute inset-0 rounded-full border border-accent/40 animate-ring-pulse" aria-hidden />
+              <span className="absolute inset-0 rounded-full border border-accent/40 animate-ring-pulse [animation-delay:1s]" aria-hidden />
+              <div className="absolute inset-0 rounded-full bg-accent/40 blur-2xl animate-pulse" aria-hidden />
+              <img
+                src={aplLogo.url}
+                alt="Al-Manar Premier League crest"
+                className="relative h-56 w-56 rounded-full bg-white p-2 shadow-glow sm:h-72 sm:w-72 animate-float-y"
+              />
             </div>
           </div>
         </div>
