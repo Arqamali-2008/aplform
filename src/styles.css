@@ -184,3 +184,51 @@
 }
 @utility animate-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
 
+/* Thrilled animations */
+@keyframes thrill-in {
+  0% { opacity: 0; transform: translateY(30px) scale(0.94); filter: blur(8px); }
+  60% { opacity: 1; transform: translateY(-4px) scale(1.01); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(2deg); }
+}
+@keyframes spotlight-sweep {
+  0% { transform: translateX(-120%) skewX(-20deg); opacity: 0; }
+  40% { opacity: 0.55; }
+  100% { transform: translateX(220%) skewX(-20deg); opacity: 0; }
+}
+@keyframes hero-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes ember-drift {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  15% { opacity: 0.8; }
+  100% { transform: translateY(-140px) translateX(30px); opacity: 0; }
+}
+@keyframes ring-pulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@utility animate-thrill-in { animation: thrill-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@utility animate-float-y { animation: float-y 6s ease-in-out infinite; }
+@utility animate-spotlight { animation: spotlight-sweep 3.6s ease-in-out infinite; }
+@utility animate-ring-pulse { animation: ring-pulse 2.6s ease-out infinite; }
+@utility animate-ember { animation: ember-drift 5s ease-in infinite; }
+@utility bg-gradient-hero-live {
+  background-image: linear-gradient(
+    120deg,
+    oklch(0.16 0.07 260) 0%,
+    oklch(0.22 0.11 265) 30%,
+    oklch(0.35 0.18 20) 55%,
+    oklch(0.22 0.11 265) 80%,
+    oklch(0.16 0.07 260) 100%
+  );
+  background-size: 220% 220%;
+  animation: hero-gradient-shift 12s ease-in-out infinite;
+}
+
+
