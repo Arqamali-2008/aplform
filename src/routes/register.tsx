@@ -112,7 +112,6 @@ const STEPS = [
 ];
 
 function RegisterPage() {
-  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [state, setState] = useState<FormState>(initialState);
   const [submitting, setSubmitting] = useState(false);
