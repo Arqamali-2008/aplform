@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   Search,
@@ -13,10 +13,13 @@ import {
   RefreshCw,
   FileJson,
   Filter,
+  Lock,
+  LogOut,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -40,6 +43,9 @@ import {
   type RegistrationRecord,
 } from "@/lib/apl-registration.functions";
 
+const ADMIN_PASSWORD = "Admin.APL";
+const AUTH_KEY = "apl-admin-auth";
+
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
@@ -52,6 +58,73 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
+  const [authed, setAuthed] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(AUTH_KEY) === "1") setAuthed(true);
+    } catch {
+      /* ignore */
+    }
+    setChecked(true);
+  }, []);
+
+  if (!checked) return null;
+  if (!authed) return <PasswordGate onSuccess={() => setAuthed(true)} />;
+  return <AdminInner onLogout={() => {
+    try { sessionStorage.removeItem(AUTH_KEY); } catch { /* ignore */ }
+    setAuthed(false);
+  }} />;
+}
+
+function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState(false);
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (pw === ADMIN_PASSWORD) {
+      try { sessionStorage.setItem(AUTH_KEY, "1"); } catch { /* ignore */ }
+      onSuccess();
+    } else {
+      setErr(true);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <form
+        onSubmit={submit}
+        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-card space-y-4"
+      >
+        <div className="flex flex-col items-center gap-2 text-center">
+          <div className="rounded-full bg-primary/10 p-3">
+            <Lock className="h-6 w-6 text-primary" />
+          </div>
+          <h1 className="font-display text-xl font-bold">Admin Access</h1>
+          <p className="text-sm text-muted-foreground">Enter the admin password to continue.</p>
+        </div>
+        <div className="space-y-1">
+          <Input
+            type="password"
+            autoFocus
+            placeholder="Password"
+            value={pw}
+            onChange={(e) => { setPw(e.target.value); setErr(false); }}
+          />
+          {err && <p className="text-xs text-destructive">Incorrect password</p>}
+        </div>
+        <Button type="submit" className="w-full">Unlock</Button>
+        <div className="text-center">
+          <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">← Back to home</Link>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function AdminInner({ onLogout }: { onLogout: () => void }) {
   const qc = useQueryClient();
   const list = useServerFn(listRegistrations);
   const setStatus = useServerFn(setRegistrationStatus);
@@ -66,6 +139,8 @@ function AdminPage() {
   const [tournament, setTournament] = useState<string>("all");
   const [status, setStatusFilter] = useState<string>("all");
   const [detail, setDetail] = useState<RegistrationRecord | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const filtered = useMemo(() => {
     const records = data?.records || [];
@@ -82,6 +157,33 @@ function AdminPage() {
       );
     });
   }, [data, search, tournament, status]);
+
+  // Prune selection when filter changes
+  useEffect(() => {
+    const visibleIds = new Set(filtered.map((r) => r.registrationId));
+    setSelected((prev) => {
+      const next = new Set<string>();
+      prev.forEach((id) => visibleIds.has(id) && next.add(id));
+      return next;
+    });
+  }, [filtered]);
+
+  const allVisibleChecked = filtered.length > 0 && filtered.every((r) => selected.has(r.registrationId));
+  const someChecked = selected.size > 0;
+
+  function toggleOne(id: string, checked: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function toggleAll(checked: boolean) {
+    if (checked) setSelected(new Set(filtered.map((r) => r.registrationId)));
+    else setSelected(new Set());
+  }
 
   const statusMut = useMutation({
     mutationFn: (v: { registrationId: string; status: "Pending" | "Approved" | "Rejected" }) =>
@@ -103,8 +205,36 @@ function AdminPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Delete failed"),
   });
 
+  async function bulkSetStatus(newStatus: "Approved" | "Rejected") {
+    const records = (data?.records || []).filter((r) => selected.has(r.registrationId));
+    const targets = records.filter((r) => r.status !== newStatus);
+    if (targets.length === 0) {
+      toast.info(`No registrations to ${newStatus.toLowerCase()}`);
+      return;
+    }
+    if (!confirm(`${newStatus === "Approved" ? "Approve" : "Reject"} ${targets.length} registration(s)?`)) return;
+
+    setBulkBusy(true);
+    let ok = 0, fail = 0;
+    // Sequential to avoid Sheets write races
+    for (const r of targets) {
+      try {
+        await setStatus({ data: { registrationId: r.registrationId, status: newStatus } });
+        ok++;
+      } catch {
+        fail++;
+      }
+    }
+    setBulkBusy(false);
+    qc.invalidateQueries({ queryKey: ["registrations"] });
+    setSelected(new Set());
+    if (fail === 0) toast.success(`${newStatus}: ${ok} registration(s)`);
+    else toast.warning(`${newStatus}: ${ok} ok, ${fail} failed`);
+  }
+
   function exportOne(r: RegistrationRecord) {
     downloadJson(`${r.registrationId}.json`, recordToExport(r));
+    toast.success(`Downloaded ${r.registrationId}.json`);
   }
   function exportAll() {
     if (!filtered.length) {
@@ -116,6 +246,20 @@ function AdminPage() {
       count: filtered.length,
       teams: filtered.map(recordToExport),
     });
+    toast.success(`Downloaded ${filtered.length} team(s)`);
+  }
+  function exportSelected() {
+    const records = (data?.records || []).filter((r) => selected.has(r.registrationId));
+    if (!records.length) {
+      toast.error("Select at least one team");
+      return;
+    }
+    downloadJson(`apl-teams-selected-${Date.now()}.json`, {
+      exportedAt: new Date().toISOString(),
+      count: records.length,
+      teams: records.map(recordToExport),
+    });
+    toast.success(`Downloaded ${records.length} team(s)`);
   }
 
   return (
@@ -129,6 +273,9 @@ function AdminPage() {
           <div className="flex gap-2">
             <Button asChild variant="secondary" size="sm">
               <Link to="/register">New Registration</Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onLogout} className="text-primary-foreground hover:bg-white/10">
+              <LogOut className="mr-1.5 h-3.5 w-3.5" /> Lock
             </Button>
           </div>
         </div>
@@ -176,6 +323,46 @@ function AdminPage() {
           </div>
         </div>
 
+        {/* Bulk actions bar */}
+        {someChecked && (
+          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+            <span className="text-sm font-medium">
+              {selected.size} selected
+            </span>
+            <div className="ml-auto flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={exportSelected}
+                disabled={bulkBusy}
+              >
+                <Download className="mr-1.5 h-3.5 w-3.5" /> Export selected
+              </Button>
+              <Button
+                size="sm"
+                className="bg-success text-white hover:bg-success/90"
+                onClick={() => bulkSetStatus("Approved")}
+                disabled={bulkBusy}
+              >
+                {bulkBusy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1.5 h-3.5 w-3.5" />}
+                Approve selected
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => bulkSetStatus("Rejected")}
+                disabled={bulkBusy}
+              >
+                {bulkBusy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1.5 h-3.5 w-3.5" />}
+                Reject selected
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())} disabled={bulkBusy}>
+                Clear
+              </Button>
+            </div>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -194,6 +381,13 @@ function AdminPage() {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
+                    <th className="px-3 py-3 w-10">
+                      <Checkbox
+                        checked={allVisibleChecked}
+                        onCheckedChange={(v) => toggleAll(!!v)}
+                        aria-label="Select all"
+                      />
+                    </th>
                     <th className="px-4 py-3">Reg ID</th>
                     <th className="px-4 py-3">Team</th>
                     <th className="px-4 py-3">Tournament</th>
@@ -207,6 +401,13 @@ function AdminPage() {
                 <tbody>
                   {filtered.map((r) => (
                     <tr key={r.registrationId} className="border-t border-border hover:bg-muted/30">
+                      <td className="px-3 py-3">
+                        <Checkbox
+                          checked={selected.has(r.registrationId)}
+                          onCheckedChange={(v) => toggleOne(r.registrationId, !!v)}
+                          aria-label={`Select ${r.registrationId}`}
+                        />
+                      </td>
                       <td className="px-4 py-3 font-mono text-xs font-semibold">{r.registrationId}</td>
                       <td className="px-4 py-3">
                         <button
@@ -242,7 +443,7 @@ function AdminPage() {
                           >
                             <X className="h-4 w-4" />
                           </IconAction>
-                          <IconAction title="Export JSON" onClick={() => exportOne(r)}>
+                          <IconAction title="Download JSON" onClick={() => exportOne(r)}>
                             <Download className="h-4 w-4" />
                           </IconAction>
                           <IconAction
@@ -276,7 +477,7 @@ function AdminPage() {
             <Button variant="outline" onClick={() => setDetail(null)}>Close</Button>
             {detail && (
               <Button onClick={() => exportOne(detail)}>
-                <Download className="mr-1.5 h-4 w-4" /> Export JSON
+                <Download className="mr-1.5 h-4 w-4" /> Download JSON
               </Button>
             )}
           </DialogFooter>
@@ -386,6 +587,8 @@ function downloadJson(filename: string, data: unknown) {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
