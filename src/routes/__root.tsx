@@ -123,8 +123,27 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="flex min-h-screen flex-col">
+        <div className="flex-1">
+          <Outlet />
+        </div>
+        <SiteFooter />
+      </div>
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="border-t border-border bg-primary text-primary-foreground">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-1 px-4 py-4 text-center text-xs sm:text-sm">
+        <p className="font-medium">
+          Designed and Development By{" "}
+          <span className="font-display font-bold tracking-wide text-accent">AMi</span>
+        </p>
+        <p className="text-primary-foreground/70">Batch of 2024</p>
+      </div>
+    </footer>
   );
 }
