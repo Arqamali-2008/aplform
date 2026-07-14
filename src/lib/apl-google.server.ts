@@ -29,6 +29,8 @@ export const NUM_COLS = HEADERS.length;
 // module-level cache (worker instance lifetime)
 let spreadsheetIdCache: string | null = null;
 let folderIdCache: string | null = null;
+let sheetTabIdCache: number | null = null;
+
 
 function commonHeaders() {
   const key = process.env.LOVABLE_API_KEY;
