@@ -139,7 +139,6 @@
   --input: oklch(0.3 0.05 260);
   --ring: oklch(0.62 0.2 250);
 }
-}
 
 @layer base {
   * { border-color: var(--color-border); }
