@@ -216,9 +216,11 @@ export const deleteRegistration = createServerFn({ method: "POST" })
     z.object({ registrationId: z.string().min(1) }).parse(data),
   )
   .handler(async ({ data }) => {
-    const { findRowIndexById, clearRowByIndex } = await import("./apl-google.server");
+    const { findRowIndexById, deleteRowByIndex } = await import("./apl-google.server");
     const idx = await findRowIndexById(data.registrationId);
     if (!idx) throw new Error("Registration not found");
+    await deleteRowByIndex(idx);
+
     await clearRowByIndex(idx);
     return { ok: true };
   });
