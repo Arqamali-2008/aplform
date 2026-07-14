@@ -236,16 +236,30 @@ export async function updateRowByIndex(rowIndex: number, row: string[]) {
   });
 }
 
-// Clear a row (physical delete would require batchUpdate with sheetId; clearing is simpler)
-export async function clearRowByIndex(rowIndex: number) {
+// Physically delete a row (shifts rows up so the sheet stays clean/compact)
+export async function deleteRowByIndex(rowIndex: number) {
   const id = await getOrCreateSpreadsheet();
-  const range = `${TAB}!A${rowIndex}:AZ${rowIndex}`;
-  await sheetsFetch(`/v4/spreadsheets/${id}/values/${range}:clear`, {
+  const sheetId = await getSheetTabId();
+  await sheetsFetch(`/v4/spreadsheets/${id}:batchUpdate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({}),
+    body: JSON.stringify({
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId,
+              dimension: "ROWS",
+              startIndex: rowIndex - 1, // 0-indexed, inclusive
+              endIndex: rowIndex, // exclusive
+            },
+          },
+        },
+      ],
+    }),
   });
 }
+
 
 // Find sheet row index (1-indexed, A2 = 2) by registration ID
 export async function findRowIndexById(regId: string): Promise<number | null> {
