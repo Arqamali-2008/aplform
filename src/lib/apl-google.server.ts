@@ -110,6 +110,7 @@ export async function getOrCreateSpreadsheet(): Promise<string> {
   const existing = await findFileByName(SHEET_NAME, "application/vnd.google-apps.spreadsheet");
   if (existing) {
     spreadsheetIdCache = existing;
+    await makePublic(existing).catch(() => {});
     return existing;
   }
   // Create it
@@ -121,8 +122,13 @@ export async function getOrCreateSpreadsheet(): Promise<string> {
       sheets: [{ properties: { title: TAB } }],
     }),
   });
-  const data = (await res.json()) as { spreadsheetId: string };
+  const data = (await res.json()) as {
+    spreadsheetId: string;
+    sheets?: Array<{ properties: { sheetId: number; title: string } }>;
+  };
   spreadsheetIdCache = data.spreadsheetId;
+  const tab = data.sheets?.find((s) => s.properties.title === TAB);
+  if (tab) sheetTabIdCache = tab.properties.sheetId;
   // Write headers
   await sheetsFetch(
     `/v4/spreadsheets/${data.spreadsheetId}/values/${TAB}!A1?valueInputOption=RAW`,
@@ -132,7 +138,23 @@ export async function getOrCreateSpreadsheet(): Promise<string> {
       body: JSON.stringify({ values: [HEADERS as unknown as string[]] }),
     },
   );
+  await makePublic(data.spreadsheetId).catch(() => {});
   return data.spreadsheetId;
+}
+
+async function getSheetTabId(): Promise<number> {
+  if (sheetTabIdCache != null) return sheetTabIdCache;
+  const id = await getOrCreateSpreadsheet();
+  const res = await sheetsFetch(
+    `/v4/spreadsheets/${id}?fields=sheets(properties(sheetId,title))`,
+  );
+  const data = (await res.json()) as {
+    sheets: Array<{ properties: { sheetId: number; title: string } }>;
+  };
+  const tab = data.sheets.find((s) => s.properties.title === TAB);
+  if (!tab) throw new Error(`Sheet tab "${TAB}" not found`);
+  sheetTabIdCache = tab.properties.sheetId;
+  return sheetTabIdCache;
 }
 
 async function makePublic(fileId: string) {
@@ -142,6 +164,7 @@ async function makePublic(fileId: string) {
     body: JSON.stringify({ role: "reader", type: "anyone" }),
   });
 }
+
 
 export async function uploadImageToDrive(params: {
   filename: string;
