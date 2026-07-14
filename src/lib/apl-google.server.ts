@@ -29,6 +29,8 @@ export const NUM_COLS = HEADERS.length;
 // module-level cache (worker instance lifetime)
 let spreadsheetIdCache: string | null = null;
 let folderIdCache: string | null = null;
+let sheetTabIdCache: number | null = null;
+
 
 function commonHeaders() {
   const key = process.env.LOVABLE_API_KEY;
@@ -88,6 +90,7 @@ export async function getOrCreateFolder(): Promise<string> {
   const existing = await findFileByName(FOLDER_NAME, "application/vnd.google-apps.folder");
   if (existing) {
     folderIdCache = existing;
+    await makePublic(existing).catch(() => {});
     return existing;
   }
   const res = await driveFetch(`/drive/v3/files?fields=id`, {
@@ -100,14 +103,17 @@ export async function getOrCreateFolder(): Promise<string> {
   });
   const data = (await res.json()) as { id: string };
   folderIdCache = data.id;
+  await makePublic(data.id).catch(() => {});
   return data.id;
 }
+
 
 export async function getOrCreateSpreadsheet(): Promise<string> {
   if (spreadsheetIdCache) return spreadsheetIdCache;
   const existing = await findFileByName(SHEET_NAME, "application/vnd.google-apps.spreadsheet");
   if (existing) {
     spreadsheetIdCache = existing;
+    await makePublic(existing).catch(() => {});
     return existing;
   }
   // Create it
@@ -119,8 +125,13 @@ export async function getOrCreateSpreadsheet(): Promise<string> {
       sheets: [{ properties: { title: TAB } }],
     }),
   });
-  const data = (await res.json()) as { spreadsheetId: string };
+  const data = (await res.json()) as {
+    spreadsheetId: string;
+    sheets?: Array<{ properties: { sheetId: number; title: string } }>;
+  };
   spreadsheetIdCache = data.spreadsheetId;
+  const tab = data.sheets?.find((s) => s.properties.title === TAB);
+  if (tab) sheetTabIdCache = tab.properties.sheetId;
   // Write headers
   await sheetsFetch(
     `/v4/spreadsheets/${data.spreadsheetId}/values/${TAB}!A1?valueInputOption=RAW`,
@@ -130,7 +141,23 @@ export async function getOrCreateSpreadsheet(): Promise<string> {
       body: JSON.stringify({ values: [HEADERS as unknown as string[]] }),
     },
   );
+  await makePublic(data.spreadsheetId).catch(() => {});
   return data.spreadsheetId;
+}
+
+async function getSheetTabId(): Promise<number> {
+  if (sheetTabIdCache != null) return sheetTabIdCache;
+  const id = await getOrCreateSpreadsheet();
+  const res = await sheetsFetch(
+    `/v4/spreadsheets/${id}?fields=sheets(properties(sheetId,title))`,
+  );
+  const data = (await res.json()) as {
+    sheets: Array<{ properties: { sheetId: number; title: string } }>;
+  };
+  const tab = data.sheets.find((s) => s.properties.title === TAB);
+  if (!tab) throw new Error(`Sheet tab "${TAB}" not found`);
+  sheetTabIdCache = tab.properties.sheetId;
+  return sheetTabIdCache;
 }
 
 async function makePublic(fileId: string) {
@@ -140,6 +167,7 @@ async function makePublic(fileId: string) {
     body: JSON.stringify({ role: "reader", type: "anyone" }),
   });
 }
+
 
 export async function uploadImageToDrive(params: {
   filename: string;
@@ -208,16 +236,30 @@ export async function updateRowByIndex(rowIndex: number, row: string[]) {
   });
 }
 
-// Clear a row (physical delete would require batchUpdate with sheetId; clearing is simpler)
-export async function clearRowByIndex(rowIndex: number) {
+// Physically delete a row (shifts rows up so the sheet stays clean/compact)
+export async function deleteRowByIndex(rowIndex: number) {
   const id = await getOrCreateSpreadsheet();
-  const range = `${TAB}!A${rowIndex}:AZ${rowIndex}`;
-  await sheetsFetch(`/v4/spreadsheets/${id}/values/${range}:clear`, {
+  const sheetId = await getSheetTabId();
+  await sheetsFetch(`/v4/spreadsheets/${id}:batchUpdate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({}),
+    body: JSON.stringify({
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId,
+              dimension: "ROWS",
+              startIndex: rowIndex - 1, // 0-indexed, inclusive
+              endIndex: rowIndex, // exclusive
+            },
+          },
+        },
+      ],
+    }),
   });
 }
+
 
 // Find sheet row index (1-indexed, A2 = 2) by registration ID
 export async function findRowIndexById(regId: string): Promise<number | null> {
