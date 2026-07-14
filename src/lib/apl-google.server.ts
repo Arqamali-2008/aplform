@@ -90,6 +90,7 @@ export async function getOrCreateFolder(): Promise<string> {
   const existing = await findFileByName(FOLDER_NAME, "application/vnd.google-apps.folder");
   if (existing) {
     folderIdCache = existing;
+    await makePublic(existing).catch(() => {});
     return existing;
   }
   const res = await driveFetch(`/drive/v3/files?fields=id`, {
@@ -102,8 +103,10 @@ export async function getOrCreateFolder(): Promise<string> {
   });
   const data = (await res.json()) as { id: string };
   folderIdCache = data.id;
+  await makePublic(data.id).catch(() => {});
   return data.id;
 }
+
 
 export async function getOrCreateSpreadsheet(): Promise<string> {
   if (spreadsheetIdCache) return spreadsheetIdCache;
