@@ -220,7 +220,6 @@ export const deleteRegistration = createServerFn({ method: "POST" })
     const idx = await findRowIndexById(data.registrationId);
     if (!idx) throw new Error("Registration not found");
     await deleteRowByIndex(idx);
-
-    await clearRowByIndex(idx);
     return { ok: true };
+
   });
