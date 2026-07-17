@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -9,217 +11,339 @@
 <meta name="description" content="Redirecting to the official APL Digital Registration Portal">
 
 <style>
+
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Segoe UI,Arial,sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',Arial,sans-serif;
+}
+
+html,body{
+
+width:100%;
+height:100%;
+
 }
 
 body{
-    background:linear-gradient(135deg,#071735,#0a2f74,#0f5bd3);
-    overflow:hidden;
-    color:#fff;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+
+background:
+radial-gradient(circle at top,#0b57d0 0%,#082e73 35%,#05122b 100%);
+overflow:hidden;
+display:flex;
+justify-content:center;
+align-items:center;
+color:white;
+position:relative;
+
 }
 
-/* Background Glow */
+/* Animated Background Rings */
 
 body::before{
-    content:"";
-    position:absolute;
-    width:900px;
-    height:900px;
-    border:1px solid rgba(0,153,255,.12);
-    border-radius:50%;
-    animation:rotate 18s linear infinite;
+
+content:"";
+position:absolute;
+width:900px;
+height:900px;
+border:1px solid rgba(255,255,255,.08);
+border-radius:50%;
+animation:ring 18s linear infinite;
+
 }
 
 body::after{
-    content:"";
-    position:absolute;
-    width:650px;
-    height:650px;
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:50%;
-    animation:rotate 12s linear infinite reverse;
+
+content:"";
+position:absolute;
+width:650px;
+height:650px;
+border:1px solid rgba(0,162,255,.18);
+border-radius:50%;
+animation:ring2 12s linear infinite reverse;
+
 }
 
-@keyframes rotate{
-    to{
-        transform:rotate(360deg);
-    }
+@keyframes ring{
+
+100%{
+
+transform:rotate(360deg);
+
 }
 
-/* Floating particles */
+}
+
+@keyframes ring2{
+
+100%{
+
+transform:rotate(-360deg);
+
+}
+
+}
+
+/* Floating Particles */
 
 .particle{
-    position:absolute;
-    width:5px;
-    height:5px;
-    background:#3db8ff;
-    border-radius:50%;
-    opacity:.5;
-    animation:float 12s linear infinite;
+
+position:absolute;
+width:5px;
+height:5px;
+background:#31b5ff;
+border-radius:50%;
+opacity:.6;
+animation:float 10s linear infinite;
+
 }
 
 @keyframes float{
-    from{
-        transform:translateY(100vh);
-    }
-    to{
-        transform:translateY(-100vh);
-    }
+
+0%{
+
+transform:translateY(120vh);
+
+}
+
+100%{
+
+transform:translateY(-120vh);
+
+}
+
 }
 
 .container{
-    position:relative;
-    z-index:5;
-    text-align:center;
-    max-width:650px;
-    padding:20px;
+
+position:relative;
+z-index:10;
+text-align:center;
+max-width:700px;
+padding:20px;
+
 }
 
 .logo{
-    width:190px;
-    height:190px;
-    object-fit:contain;
-    border-radius:50%;
-    background:rgba(255,255,255,.08);
-    padding:12px;
-    box-shadow:
-    0 0 25px rgba(0,170,255,.8),
-    0 0 70px rgba(0,170,255,.4);
-    animation:pulse 2.5s infinite;
+
+width:190px;
+height:190px;
+object-fit:contain;
+border-radius:50%;
+padding:12px;
+background:rgba(255,255,255,.08);
+
+box-shadow:
+
+0 0 20px rgba(0,162,255,.8),
+0 0 70px rgba(0,162,255,.45);
+
+animation:pulse 2.5s infinite;
+
 }
 
 @keyframes pulse{
-    50%{
-        transform:scale(1.05);
-    }
+
+50%{
+
+transform:scale(1.05);
+
+}
+
 }
 
 .badge{
-    display:inline-block;
-    margin-top:25px;
-    background:rgba(255,255,255,.08);
-    padding:8px 18px;
-    border-radius:30px;
-    color:#74c9ff;
-    border:1px solid rgba(255,255,255,.15);
+
+display:inline-block;
+margin-top:25px;
+padding:8px 20px;
+border-radius:30px;
+border:1px solid rgba(255,255,255,.12);
+background:rgba(255,255,255,.08);
+color:#78d3ff;
+font-weight:600;
+
 }
 
 h1{
-    margin-top:25px;
-    font-size:48px;
-    font-weight:800;
+
+font-size:52px;
+margin-top:25px;
+font-weight:800;
+letter-spacing:.5px;
+
 }
 
 h2{
-    margin-top:10px;
-    font-size:26px;
-    color:#39b8ff;
+
+margin-top:12px;
+font-size:28px;
+color:#38bbff;
+
 }
 
 p{
-    margin-top:20px;
-    color:#d8e9ff;
-    line-height:1.6;
-    font-size:18px;
+
+margin-top:20px;
+font-size:18px;
+line-height:1.7;
+color:#dbe9ff;
+
 }
 
 .count{
-    margin:25px 0;
-    font-size:70px;
-    color:#33b5ff;
-    font-weight:bold;
+
+margin-top:25px;
+font-size:72px;
+font-weight:bold;
+color:#32b6ff;
+
 }
 
-.bar{
-    width:100%;
-    height:8px;
-    background:rgba(255,255,255,.15);
-    border-radius:30px;
-    overflow:hidden;
-    margin:20px auto;
+.loading{
+
+margin:30px auto;
+width:100%;
+height:8px;
+background:rgba(255,255,255,.15);
+border-radius:50px;
+overflow:hidden;
+
 }
 
 .progress{
-    width:0%;
-    height:100%;
-    background:#1aa8ff;
-    animation:loading 3s linear forwards;
+
+height:100%;
+width:0%;
+background:#1ba7ff;
+border-radius:50px;
+animation:loading 3s linear forwards;
+
 }
 
 @keyframes loading{
-    to{
-        width:100%;
-    }
+
+100%{
+
+width:100%;
+
+}
+
 }
 
 .btn{
-    display:inline-block;
-    margin-top:20px;
-    padding:15px 45px;
-    background:#1991ff;
-    color:white;
-    text-decoration:none;
-    border-radius:12px;
-    font-size:18px;
-    font-weight:bold;
-    transition:.3s;
+
+display:inline-block;
+margin-top:15px;
+padding:16px 45px;
+background:#1797ff;
+color:white;
+text-decoration:none;
+font-size:18px;
+font-weight:bold;
+border-radius:12px;
+transition:.3s;
+
 }
 
 .btn:hover{
-    background:#0b7cff;
-    transform:translateY(-3px);
+
+background:#0b7dff;
+transform:translateY(-3px);
+
 }
 
 footer{
-    position:absolute;
-    bottom:18px;
-    width:100%;
-    text-align:center;
-    color:#9acfff;
-    font-size:15px;
+
+position:absolute;
+bottom:18px;
+width:100%;
+text-align:center;
+font-size:15px;
+color:#9bcfff;
+
 }
 
 footer span{
-    color:#33b5ff;
-    font-weight:bold;
+
+font-weight:bold;
+color:#2fb8ff;
+
 }
+
+@media(max-width:700px){
+
+.logo{
+
+width:150px;
+height:150px;
+
+}
+
+h1{
+
+font-size:38px;
+
+}
+
+h2{
+
+font-size:22px;
+
+}
+
+.count{
+
+font-size:55px;
+
+}
+
+p{
+
+font-size:16px;
+
+}
+
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="particle" style="left:10%;animation-delay:0s;"></div>
-<div class="particle" style="left:25%;animation-delay:2s;"></div>
-<div class="particle" style="left:40%;animation-delay:4s;"></div>
-<div class="particle" style="left:60%;animation-delay:1s;"></div>
-<div class="particle" style="left:75%;animation-delay:3s;"></div>
-<div class="particle" style="left:90%;animation-delay:5s;"></div>
+<div class="particle" style="left:8%;animation-delay:0s;"></div>
+<div class="particle" style="left:22%;animation-delay:2s;"></div>
+<div class="particle" style="left:36%;animation-delay:4s;"></div>
+<div class="particle" style="left:50%;animation-delay:1s;"></div>
+<div class="particle" style="left:66%;animation-delay:3s;"></div>
+<div class="particle" style="left:82%;animation-delay:5s;"></div>
+<div class="particle" style="left:95%;animation-delay:6s;"></div>
 
 <div class="container">
 
-<img src="https://i.ibb.co/cc8Rhys1/image.png" alt="APL Logo" class="logo">
+<img
+src="https://i.ibb.co/cc8Rhys1/image.png"
+alt="APL Logo"
+class="logo">
 
-<div class="badge">🏆 Official Team Registration Portal</div>
+<div class="badge">
+🏆 Official Team Registration Portal
+</div>
 
 <h1>AL Manar Premier League</h1>
 
 <h2>Digital Registration Portal</h2>
 
 <p>
-You are being securely redirected to the official APL Team Registration System.
+Please wait while we securely redirect you to the official
+APL Team Registration System.
 </p>
 
 <div class="count" id="count">3</div>
 
-<div class="bar">
+<div class="loading">
 <div class="progress"></div>
 </div>
 
@@ -235,26 +359,63 @@ Designed &amp; Developed by <span>AMi</span>
 
 <script>
 
-let seconds=3;
-const counter=document.getElementById("count");
+let seconds = 3;
 
-const timer=setInterval(()=>{
+const counter = document.getElementById("count");
 
-seconds--;
+const redirectURL = "https://team-reg-pro.lovable.app";
 
-counter.innerHTML=seconds;
+const timer = setInterval(() => {
 
-if(seconds<=0){
+    seconds--;
 
-clearInterval(timer);
+    if (seconds >= 0) {
+        counter.innerHTML = seconds;
+    }
 
-window.location.href="https://team-reg-pro.lovable.app";
+    if (seconds <= 0) {
+
+        clearInterval(timer);
+
+        window.location.replace(redirectURL);
+
+    }
+
+}, 1000);
+
+/* Continue Button */
+document.querySelector(".btn").addEventListener("click", function(e){
+
+    e.preventDefault();
+
+    window.location.replace(redirectURL);
+
+});
+
+/* Create Floating Particles */
+
+for(let i = 0; i < 40; i++){
+
+    const particle = document.createElement("div");
+
+    particle.className = "particle";
+
+    particle.style.left = Math.random() * 100 + "%";
+
+    particle.style.animationDuration = (8 + Math.random() * 8) + "s";
+
+    particle.style.animationDelay = Math.random() * 5 + "s";
+
+    particle.style.opacity = Math.random();
+
+    particle.style.transform = "scale(" + (0.5 + Math.random()) + ")";
+
+    document.body.appendChild(particle);
 
 }
-
-},1000);
 
 </script>
 
 </body>
+
 </html>
