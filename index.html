@@ -1,45 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>APL Digital Registration Portal</title>
+<title>APL Digital Registration Portal</title>
 
-    <meta name="description" content="Register your team for the AL Manar Premier League (APL) and AL Legends Premier League (ALPL). Registration is now OPEN.">
+<meta name="description" content="Redirecting to the official APL Digital Registration Portal">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,Arial,sans-serif;
+}
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="🏏 APL Digital Registration Portal">
-    <meta property="og:description" content="Team Registration is now OPEN for APL & ALPL. Register your team online in just a few minutes.">
-    <meta property="og:url" content="https://aplform.vercel.app">
-    <meta property="og:image" content="https://aplform.vercel.app/thumbnail.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+body{
+    background:linear-gradient(135deg,#071735,#0a2f74,#0f5bd3);
+    overflow:hidden;
+    color:#fff;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
 
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="🏏 APL Digital Registration Portal">
-    <meta name="twitter:description" content="Register your team for APL & ALPL today.System Designed and Devoloped BY AMi">
-    <meta name="twitter:image" content="https://aplform.vercel.app/">
+/* Background Glow */
 
-    <!-- Redirect -->
-    <meta http-equiv="refresh" content="1;url=https://team-reg-pro.lovable.app">
+body::before{
+    content:"";
+    position:absolute;
+    width:900px;
+    height:900px;
+    border:1px solid rgba(0,153,255,.12);
+    border-radius:50%;
+    animation:rotate 18s linear infinite;
+}
 
-    <script>
-        setTimeout(() => {
-            window.location.replace("https://team-reg-pro.lovable.app");
-        }, 1000);
-    </script>
+body::after{
+    content:"";
+    position:absolute;
+    width:650px;
+    height:650px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:50%;
+    animation:rotate 12s linear infinite reverse;
+}
+
+@keyframes rotate{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+/* Floating particles */
+
+.particle{
+    position:absolute;
+    width:5px;
+    height:5px;
+    background:#3db8ff;
+    border-radius:50%;
+    opacity:.5;
+    animation:float 12s linear infinite;
+}
+
+@keyframes float{
+    from{
+        transform:translateY(100vh);
+    }
+    to{
+        transform:translateY(-100vh);
+    }
+}
+
+.container{
+    position:relative;
+    z-index:5;
+    text-align:center;
+    max-width:650px;
+    padding:20px;
+}
+
+.logo{
+    width:190px;
+    height:190px;
+    object-fit:contain;
+    border-radius:50%;
+    background:rgba(255,255,255,.08);
+    padding:12px;
+    box-shadow:
+    0 0 25px rgba(0,170,255,.8),
+    0 0 70px rgba(0,170,255,.4);
+    animation:pulse 2.5s infinite;
+}
+
+@keyframes pulse{
+    50%{
+        transform:scale(1.05);
+    }
+}
+
+.badge{
+    display:inline-block;
+    margin-top:25px;
+    background:rgba(255,255,255,.08);
+    padding:8px 18px;
+    border-radius:30px;
+    color:#74c9ff;
+    border:1px solid rgba(255,255,255,.15);
+}
+
+h1{
+    margin-top:25px;
+    font-size:48px;
+    font-weight:800;
+}
+
+h2{
+    margin-top:10px;
+    font-size:26px;
+    color:#39b8ff;
+}
+
+p{
+    margin-top:20px;
+    color:#d8e9ff;
+    line-height:1.6;
+    font-size:18px;
+}
+
+.count{
+    margin:25px 0;
+    font-size:70px;
+    color:#33b5ff;
+    font-weight:bold;
+}
+
+.bar{
+    width:100%;
+    height:8px;
+    background:rgba(255,255,255,.15);
+    border-radius:30px;
+    overflow:hidden;
+    margin:20px auto;
+}
+
+.progress{
+    width:0%;
+    height:100%;
+    background:#1aa8ff;
+    animation:loading 3s linear forwards;
+}
+
+@keyframes loading{
+    to{
+        width:100%;
+    }
+}
+
+.btn{
+    display:inline-block;
+    margin-top:20px;
+    padding:15px 45px;
+    background:#1991ff;
+    color:white;
+    text-decoration:none;
+    border-radius:12px;
+    font-size:18px;
+    font-weight:bold;
+    transition:.3s;
+}
+
+.btn:hover{
+    background:#0b7cff;
+    transform:translateY(-3px);
+}
+
+footer{
+    position:absolute;
+    bottom:18px;
+    width:100%;
+    text-align:center;
+    color:#9acfff;
+    font-size:15px;
+}
+
+footer span{
+    color:#33b5ff;
+    font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
-    <img
-  src="thumbnail.jpg"
-  alt="Image"
-  style="width:100%; height:auto;">
-    
+<div class="particle" style="left:10%;animation-delay:0s;"></div>
+<div class="particle" style="left:25%;animation-delay:2s;"></div>
+<div class="particle" style="left:40%;animation-delay:4s;"></div>
+<div class="particle" style="left:60%;animation-delay:1s;"></div>
+<div class="particle" style="left:75%;animation-delay:3s;"></div>
+<div class="particle" style="left:90%;animation-delay:5s;"></div>
+
+<div class="container">
+
+<img src="https://i.ibb.co/cc8Rhys1/image.png" alt="APL Logo" class="logo">
+
+<div class="badge">🏆 Official Team Registration Portal</div>
+
+<h1>AL Manar Premier League</h1>
+
+<h2>Digital Registration Portal</h2>
+
+<p>
+You are being securely redirected to the official APL Team Registration System.
+</p>
+
+<div class="count" id="count">3</div>
+
+<div class="bar">
+<div class="progress"></div>
+</div>
+
+<a href="https://team-reg-pro.lovable.app" class="btn">
+🚀 Continue Now
+</a>
+
+</div>
+
+<footer>
+Designed &amp; Developed by <span>AMi</span>
+</footer>
+
+<script>
+
+let seconds=3;
+const counter=document.getElementById("count");
+
+const timer=setInterval(()=>{
+
+seconds--;
+
+counter.innerHTML=seconds;
+
+if(seconds<=0){
+
+clearInterval(timer);
+
+window.location.href="https://team-reg-pro.lovable.app";
+
+}
+
+},1000);
+
+</script>
+
 </body>
 </html>
